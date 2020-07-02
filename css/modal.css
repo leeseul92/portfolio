@@ -1,0 +1,104 @@
+/* Modal(Background) */
+.firstModal {
+	display: block;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgb(0,0,0); /* Fallback colour */
+	background-color: rgba(0,0,0,0.4); /* Black with opacity */
+}
+
+.modal {
+	display: none; /* Hidden by Default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Put on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* FUll height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0,0,0); /* Fallback colour */
+	background-color: rgba(0,0,0,0.4); /* Black with opacity */
+}
+
+/* Modal Content Box */
+.a-modal-content {
+	float: right;
+	background-color: #fefefe;
+	margin: 55px auto; /* 15% from the top AND centered */
+/* 	padding: 10px;
+	padding-bottom: 0; */
+	border: 1px solid #888;
+	width: 50%; /* Could be more or less, depending on screen size */
+	border-radius: 6px;
+	z-index: 2;
+}
+
+.w-modal-content {
+	background-color: #fefefe;
+	margin: 0 auto;
+	padding: 20px;
+	border: 1px solid #888;
+	border-radius: 6px;
+	width: 520px;
+	height: 580px;
+	z-index: 2; 
+}
+
+.r-modal-content {
+	background-color: rgb(137, 179, 217);
+    margin: 100px auto;
+    padding: 20px;
+    border: 1px solid #89B3D9;
+    width: 500px;
+    height: 500px;
+    z-index: 2;
+}
+
+.s-modal-content {
+	background-color: #fefefe;
+	margin: -70px auto;
+	padding: 20px;
+	border: 1px solid #888;
+	border-radius: 6px;
+	overflow: scroll;
+	width: 900px;
+	max-height: 600px;
+	z-index: 3;
+}
+
+.p-modal-content {
+	background-color: #fefefe;
+    width: 1000px;
+    margin: 50px auto;
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 3;
+}
+
+.e-modal-content {
+	background-color: #fefefe;
+    width: 600px;
+    margin: 70px auto;
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 3;
+}
+
+/* Close Button */
+.close {
+	color: #aaa;
+	float: right;
+	font-size: px;
+	font-weight: bold;
+}
+.close:hover,
+.close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+}

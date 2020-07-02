@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+			PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+					"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pSQL">
+	
+	<!-- 게시물 상세보기 내 댓글리스트 가져오는 질의명령 -->
+	<select id="CmtList" resultType="pVO" parameterType="pVO">
+		SELECT
+		    ROWNUM rno, cno, c.pno, comnt, c.mno, cdate, m.id,
+		    s.id sid
+		FROM
+		    commenttab c, poststab p, membertab m,
+            (SELECT id FROM membertab WHERE id = #{sid}) s
+		WHERE
+		    c.pno = p.pno
+		    AND p.pno = #{pno}
+		    AND c.mno = m.mno
+		    AND c.isshow = 'Y'
+		ORDER BY
+		    cdate DESC
+	</select>
+	
+	<!-- 댓글 입력 질의명령 -->	
+	<insert id="WrtCmt" parameterType="pVO">
+		<selectKey keyProperty="cno" resultType="int" order="AFTER">
+			SELECT
+				MAX(cno)
+			FROM
+				commenttab
+		</selectKey>
+		INSERT INTO 
+		    commenttab(cno, pno, comnt, mno) 
+		VALUES( 
+		    (SELECT MAX(cno)+1 FROM commenttab),
+		    #{pno}, #{cbody}, 
+			(SELECT mno FROM membertab WHERE id = #{id}))
+	</insert>
+	
+	<!-- 댓글 삭제 질의명령 -->
+	<update id="delCmt" parameterType="int">
+		UPDATE
+		    commenttab
+		SET
+		    isshow = 'N'
+		WHERE
+		    cno = #{cno}
+	</update>
+	
+	<!-- 게시글작성시 검색할 장르 목록 질의명령 -->
+	<select id="getGenres" resultType="pVO">
+		SELECT
+			genre, gname
+		FROM
+			genretab 
+	</select>
+	
+	<!-- 게시글작성시 입력된 키워드 도서검색 결과 질의명령 -->
+	<select id="SearchBook" resultType="pVO" parameterType="pVO">
+		SELECT
+		   mg.*
+		FROM
+		    (SELECT
+		        bno, bname, gname, writer, trans, largeimg, publish
+		    FROM    
+		        booktab b, genretab g, publishtab pb
+		    WHERE
+		    	b.genre = g.genre
+		    	AND b.publish_no = pb.publish_no
+		    	<choose>
+		    		<when test="genre == 100">
+		    			AND gname LIKE '%국내도서%'
+		    		</when>
+		    		<when test="genre == 200">
+		    			AND gname LIKE '%외국도서%'
+		    		</when>
+		    		<otherwise>
+		    			AND b.genre = #{genre}
+		    		</otherwise>
+		    	</choose> ) mg
+		WHERE
+		    bname LIKE #{keyword}
+		    OR writer LIKE #{keyword}
+		    OR trans LIKE #{keyword}
+		    OR publish LIKE #{keyword}
+	</select>
+	
+	<!-- 게시글 등록 질의명령 -->
+	<insert id="addPost" parameterType="pVO">
+		<selectKey keyProperty="pno" resultType="int" order="BEFORE">
+			SELECT
+				NVL(MAX(pno)+1, 5000)
+			FROM
+				poststab
+		</selectKey>
+		
+		INSERT INTO
+			poststab(pno, mno, bno, postcont, eno)
+		VALUES(
+			#{pno}, 
+			(SELECT mno FROM membertab WHERE id = #{sid}),
+			#{bno}, #{postcont}, #{eno}
+		)
+	</insert>
+	
+	<!-- 해시태그 등록 질의명령 -->
+	<insert id="addHash" parameterType="pVO">
+		<selectKey keyProperty="hno" resultType="int" order="BEFORE">
+			SELECT
+				NVL(MAX(hno)+1, 100)
+			FROM
+				hashtab
+		</selectKey>
+		
+		INSERT INTO
+			hashtab(hno, pno, hname)
+		VALUES(
+			#{hno}, #{pno}, #{hash}
+		)
+	</insert>
+	
+	<!-- 게시글 삭제 질의명령 -->
+	<update id="delPost" parameterType="int">
+		UPDATE
+			poststab
+		SET
+			isshow = 'N'
+		WHERE
+			pno = #{pno}
+	</update>
+</mapper>					
