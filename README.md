@@ -30,6 +30,7 @@ _HTML/CSS_
   - 기본적인 틀 작성 가능
 
 <b>[개발 Tool 및 개발환경]</b>
+<br>
 Project : 책을 통해 이야기하는 SNS<br>
 Framework : Spring 4.3.25<br>
 Design pattern : Spring MVC model 2<br>
