@@ -64,6 +64,7 @@ function splitedHash(body){
 
 //댓글 리스트 불러주는 비동기통신 함수 
 function showCmtList(pno, tid){
+	var sid = document.getElementById('sid').value;
 	
 	$.ajax({
 		url: '/cls/posts/showCmtList.cls',
@@ -76,12 +77,12 @@ function showCmtList(pno, tid){
 			var len = obj.length;
 			if(len != 0){
 				for(var i = 0; i < len; i++){
-					if(obj[i].sid == obj[i].id){
+					if(sid == obj[i].id){
 						$('#'+tid).append('<div style="width: 100%; height: 30px;" id="' + tid + '">' +
 								'<div style="float: left; width: 30px; height: 30px; margin-left: 10px; border: 1px dashed black;">' +
 								'<img src="" style="box-sizing: border-box;"/>' +
 								'</div>' +
-								'<div class="h30-m10" id="id' + obj[i].cno + '" style="width: 60px;"><a href="">' + obj[i].id + '</a></div>' +
+								'<div class="h30-m10" style="width: 60px;"><a href="" id="id' + obj[i].cno + '" >' + obj[i].id + '</a></div>' +
 								'<div class="h30-m10" style="width: 150px;"><small>' + obj[i].cdate + '</small></div>' +
 								'<button class="h30-m10 butt" id="' + obj[i].cno + '" style="float: right; width: 60px;" onclick="replyCmt(this);">Reply</button>' +
 								'<button class="h30-m10 butt" style="float: right; width: 60px;" onclick="delCmt(this);">Delete</button>' +
@@ -92,7 +93,7 @@ function showCmtList(pno, tid){
 								'<div style="float: left; width: 30px; height: 30px; margin-left: 10px; border: 1px dashed black;">' +
 								'<img src="" style="box-sizing: border-box;"/>' +
 								'</div>' +
-								'<div class="h30-m10" style="width: 60px;"><a href="">' + obj[i].id + '</a></div>' +
+								'<div class="h30-m10" style="width: 60px;"><a href="" id="id' + obj[i].cno + '" >' + obj[i].id + '</a></div>' +
 								'<div class="h30-m10" style="width: 150px;"><small>' + obj[i].cdate + '</small></div>' +
 								'<button class="h30-m10 butt" id="' + obj[i].cno + '" style="float: right; width: 60px;" onclick="replyCmt(this);">Reply</button>' +
 								'</div>' +
@@ -113,7 +114,10 @@ function showCmtList(pno, tid){
 //대댓글 달아주기 
 function replyCmt(element){
 	var cno = element.getAttribute('id');
-	
+	var id = $('#id'+cno).html();
+	$('.wrtcomt').css('display', '');
+	$('.wrt-hid').css('height','460px');
+	$('.combody').val('@'+id);
 }
 
 //댓글 삭제처리해주는 함수 
@@ -149,7 +153,32 @@ function delCmt(element){
 	});
 }
 
+//jQuery 시작 
 $(document).ready(function(){
+	//like 버튼 눌리는 뷰가 모달인지 아닌지 판별해주는 함수
+	var checkModal = function(){
+		var str = null;
+		
+		if($('.detailPost').css('display') == 'none'){
+			//모달 열리지 않았음.
+			str = 'ischeck';
+		} else {
+			str = 'ischeckDetail';
+		}
+		
+		return str;
+	}
+	
+	//like 버튼 뷰와 모달 서로 동기화시켜서 서로 같은 모양띄워주도록 하는 함수
+	var checkIf = function(element1, element2){
+		if($('#'+element1).css('background-position') == '-208px -370px'){
+			//빨간하트
+			$('#'+element2).css('background-position', '-208px -370px');
+		} else{
+			//빈하트
+			$('#'+element2).css('background-position', '-233px -370px');
+		}
+	}
 	
 	// search clear
 	var $ipt = $('#searchinput'),
@@ -181,72 +210,104 @@ $(document).ready(function(){
 		if (e.keyCode == 13) {
 			var key = $('.searchinput').val();
 			$('#searchinput').val(key);
-			$('#frm3').attr('action', '/BookNet/search/searchAll.cls');
+			$('#frm3').attr('action', '/cls/search/searchAll.cls');
 			$('#frm3').submit();
 		}
 	});
 	
+	//베스트셀러 모달 닫기 
 	$('#r-close_butt').click(function(){
 		$('.slideRank').css('display', 'none');
 	});
 	
-	$('#more_butt').click(function() { //modal에서 알림페이지로 이동 
-		$(location).attr('href', '/BookNet/alarm/alarmPage.cls');
+	//알림페이지로 이동 
+	$('#more_butt').click(function() {  
+		$(location).attr('href', '/cls/alarm/alarmPage.cls');
 	});
 
-	$('#aBtn').click(function() { //modal 열기
+	//알림 모달 열기 
+	$('#aBtn').click(function() { 
 		$('#actModal').css('display', 'block');
 	});
 
-	$('#a-close_butt').click(function() { //modal 닫기버튼 
+	//알림 모달 닫기 
+	$('#a-close_butt').click(function() {  
 		$('#actModal').css('display', 'none');
 	});
 
-	$('#s-close_butt').click(function() { //modal 닫기버튼 
+	//게시글작성시 도서검색결과 모달 닫기 
+	$('#s-close_butt').click(function() { 
 		$('#-s-b-modal').css('display', 'none');
 		$('.rstPage').html('');
 		$('#findBook').val('');
 	});
 	
+	//마이페이지로 이동 
 	$('#myBtn').click(function(){
 		$(location).attr('href', '/cls/mypage/mypage.cls');
 	});
 	
-	$('.likebtn').click(function(){ //like 버튼 클릭시 빨강하트로 변경 
-		$(this).css('background-position', '-208px -370px');
+	//좋아요처리 
+	$('.likebtn, .dLikebtn').click(function(){ 
 		var pno = $(this).parents().attr('id');
+		var sid = $('#sid').val();
+		var likeStatus = $(this).attr('id');
+		alert(likeStatus);
+		
+		//뷰인지 모달인지 체크해줄 함수 선언 
+		var str = checkModal();
+		
+		if($(this).css('background-position') == '-208px -370px') {
+			//만일, 하트가 빨간색이라면 ischeck에 'Y' 대입
+			$('#'+str).val('Y');
+		} else {
+			//만일, 하트가 비어있다면 ischeck에 'N' 대입 (NULL값은 자바에서 확인)
+			$('#'+str).val('N');
+		}
+		
+		var ischeck = $('#'+str).val();
 		
 		//비동기처리 
 		$.ajax({
-			url: '/BookNet/ajax/clickLikeBtn.cls',
+			url: '/cls/posts/likePosts.cls',
 			type: 'POST',
-			dataType: 'json',
+			dataType: 'text',
 			data: {
-				'pno': pno
+				'ischeck' : ischeck,
+				'pno': pno,
+				'id': sid
 			},
 			success: function(data){
-				if(data.cnt == 1){
-					//cnt 값이 1이면 디비에 저장 완료 
+//				alert(data);
+				if(data == 'Y'){
+					$('#'+likeStatus).css('background-position', '-208px -370px');
+					$('#'+str).val('Y');
+				} else {
+					$('#'+likeStatus).css('background-position', ' -233px -370px');
+					$('#'+str).val('N');
 				}
 			},
-			error: function(){
-				alert("###통신에러###");
+			error: function(request, status, error){
+				alert("code = " + request.status + " message = " + request.responseText + " error = " + error);
 			}
 		});
 	});
 	
-	$('.edbtn').click(function(){ //수정삭제를 보여주는 아이콘클릭시 수정과 삭제를 선택하게 하는 모달 
+	//게시글 수정 삭제 선택하게 하는 모달 
+	$('.edbtn').click(function(){  
 		$('.edit-del-modal').css('display', 'block');
 		//frm2에 값을 전달해주어야함. 
 		var pno = $(this).parents().attr('id');
 		$('#pno').val(pno); 
 	});
 	
-	$('#e-btn').click(function(){ //수정 버튼을 눌렀을 때 처리이벤트 
+	//게시글 수정처리 
+	$('#e-btn').click(function(){  
 		
 	});
 	
-	$('#d-btn').click(function(){ //삭제 버튼을 눌렀을 때 처리이벤트
+	//게시글 삭제처리 
+	$('#d-btn').click(function(){ 
 		var pno = $('#pno').val();
 		$('#frm2').submit();
 		
@@ -270,17 +331,20 @@ $(document).ready(function(){
 		});
 	});
 	
-	$('#c-btn').click(function(){ //취소 버튼을 눌렀을 때 처리이벤트 
+	//게시글 수정삭제 모달 닫기 
+	$('#c-btn').click(function(){  
 		//수정삭제 모달 닫아주어야한다.
 		$('.edit-del-modal').css('display', 'none');
 	});
 	
-	$('.comtbtn').click(function(){ //댓글버튼 클릭시 댓글 달 수 있는 창 보여주기 
+	//댓글버튼 클릭시 댓글 달 수 있는 div 보여주기 
+	$('.dComtbtn').click(function(){  
 		$('.wrtcomt').css('display', '');
 		$('.wrt-hid').css('height','460px');
 	});
 	
-	$('.modi_post').click(function(){ //게시물 상세보기 모달
+	//게시글 상세보기 모달 
+	$('.modi_post').click(function(){ 
 		var pno = $(this).attr('id'); //게시글번호
 		var id = $('#id'+pno).text(); //작성자 아이디
 		var stime = $('#time'+pno).html(); //작성시간 
@@ -289,7 +353,9 @@ $(document).ready(function(){
 		var bname = $('#bname'+pno).text(); //선택도서 제목
 		var pbody = $('#pbody'+pno).text(); //본문 
 		var htags = $('#hash'+pno).text(); //해시태그 
-		$('.p-modal-content').attr('id', pno);
+		
+		$('.realLkBtn').attr('id', pno);
+		$('.dLikebtn').attr('id', 'dLike'+pno);
 		$('.w-x-btn').attr('id', 'd-close_butt'+pno);
 		$('b.wrter').html(id);
 		$('#time').html(stime);
@@ -299,13 +365,23 @@ $(document).ready(function(){
 		$('#p-body').html(pbody);
 		$('#gethash').html(htags);
 		
+		//if로 뷰와 모달의 좋아요 버튼을 연동시켜줄 함수 호출
+		checkIf('like'+pno, 'dLike'+pno);
+		
 		//댓글부분 큰 div에 해당게시글 번호를 id 값으로 준다.
 		var tid = 'cmt' + pno;
 		$('.post-comment').attr('id', tid);
 
-		$('#d-close_butt'+pno).click(function(){ //게시물 상세보기 닫기 
+		//게시물 상세보기 닫기 
+		$('#d-close_butt'+pno).click(function(){ 
+			checkIf('dLike'+pno, 'like'+pno);
 			$('.detailPost').css('display', 'none');
 			$('#'+tid).html('');
+			var str = $('.combody').val();
+			if(str){
+				$('.combody').val('');
+			}
+			$('.wrtcomt').css('display', 'none'); //댓글달기위한 창 닫기 
 		});
 
 		//상세보기 게시물에서 보여줄 댓글리스트 비동기통신 함수호출
@@ -313,8 +389,10 @@ $(document).ready(function(){
 		
 	});
 	
-	$('.comsubbtn').click(function(){ //댓글 등록하기 
-		var pno = $('.p-modal-content').attr('id');
+	//댓글 등록처리 
+	$('.comsubbtn').click(function(){ 
+		var pno = $('.realLkBtn').attr('id');
+		alert(pno);
 		var cbody = $('.combody').val();
 		var tid = 'cmt' + pno;
 		
@@ -332,7 +410,6 @@ $(document).ready(function(){
 				}
 				if(data.cnt == 1){
 					$('.combody').val('');
-//					showCmtList(pno, tid); 댓글등록에 성공하면 다시 댓글리스트 비동기통신 함수호출 
 					$('.post-comment').prepend('<div style="width: 100%; height: 30px;" id="' + tid + '">' +
 							'<div style="float: left; width: 30px; height: 30px; margin-left: 10px; border: 1px dashed black;">' +
 							'<img src="" style="box-sizing: border-box;"/>' +
@@ -351,12 +428,13 @@ $(document).ready(function(){
 		});
 	});
 	
-	
-	$('#wBtn').click(function(){ //글쓰기 modal 열기 
+	//게시글작성 모달 열기 
+	$('#wBtn').click(function(){ 
 		$('#writeModal').css('display', 'block');
 	});
 	
-	$('#w-close_butt, #c-submit').click(function(){ //글쓰기 모달 닫기 
+	//게시글작성 모달 닫기 
+	$('#w-close_butt, #c-submit').click(function(){  
 		$('#writeModal').css('display', 'none');
 		$('.rstPage').html('');
 		$('#findBook').val('');
@@ -365,18 +443,17 @@ $(document).ready(function(){
 		$('#rst-book-bname').val('');
 	});
 	
-	$('#changeInfo').click(function(){ //정보수정페이지로 이동 
+	//회원 정보수정하기 페이지 이
+	$('#changeInfo').click(function(){ 
 		$(location).attr('href', '/cls/member/editMemInfo.cls');
 	});
 	
-
 	//글작성 도서검색 ajax 처리 구문
 	$('#book-search').click(function(){ //글쓰기 모달에서 읽은 도서 검색 클릭시 처리해주는 함수 
 		//입력한 검색어를 변수에 저장한다.
 		var book = $('#findBook').val();
 		//선택된 도서장르 번호를 변수에 저장
 		var genre = $('#setGenre').val();
-//		alert(book+genre);
 		//검색어 유효성 검사
 		if(!book){
 			$('#findBook').focus();
@@ -435,9 +512,9 @@ $(document).ready(function(){
 			}
 		});
 	});
-	
-	$(document).on('click', '#p-submit', function(){
-//		alert($('#sid').val());
+
+	//게시글 등록 처리
+	$(document).on('click', '#p-submit', function(){ 
 		var dom = document.location.href.split('/');
 		var domain = "";
 		for(var i = 3; i < dom.length; i++){
@@ -457,9 +534,9 @@ $(document).ready(function(){
 		$('#postcont').val(body);
 		$('#hash').val(htag);
 		$('#domain').val(domain);
-//		alert(len);
 		
-		if(!bno){		//도서선택 여부 확인
+		//데이터 유효성 검사 
+		if(!bno){		
 			alert('작성할 책을 검색해주세요!');
 			$('#findBook').focus();
 			return;
